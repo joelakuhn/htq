@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <getopt.h>
 
-#include "css_query.c"
+#include "readfile.c"
+#include "css_engine.c"
 
 #include "str_arr.c"
 
@@ -53,59 +54,36 @@ int main(int argc, char **argv) {
         str_arr_push(&options.css_queries, str_arr_shift(&files));
     }
 
-    char* selector = options.css_queries.strs[0];
+    css_engine_t* engine = css_engine_new();
 
-    struct res_html res = load_html_file(files.strs[0]);
+    mycss_selectors_list_t** selectors = malloc((sizeof(mycss_selectors_list_t*) * options.css_queries.len));
+    for (int i=0; i<options.css_queries.len; i++) {
+        selectors[i] = css_engine_parse_selector(engine, options.css_queries.strs[i]);
+    }
 
-    // const char *selector = "div > :nth-child(2n+1):not(:has(a))";
+    for (int file_ind = 0; file_ind < files.len; file_ind++) {
+        char* selector = options.css_queries.strs[0];
 
-    /* init MyHTML and parse HTML */
-    myhtml_tree_t *html_tree = parse_html(res.html, strlen(res.html));
+        struct file_contents* file = read_file(files.strs[file_ind]);
+        if (file == 0) { return 1; }
 
-    /* create css parser and finder for selectors */
-    mycss_entry_t *css_entry = create_css_parser();
-    modest_finder_t *finder = modest_finder_create_simple();
+        css_engine_parse_html(engine, file);
 
-    /* parse selectors */
-    mycss_selectors_list_t *selectors_list = prepare_selector(css_entry, selector, strlen(selector));
+        for (int sel_ind = 0; sel_ind < options.css_queries.len; sel_ind++) {
+            myhtml_collection_t* collection = css_engine_query(engine, selectors[sel_ind]);
 
-    /* find nodes by selector */
-    myhtml_collection_t *collection = NULL;
-    modest_finder_by_selectors_list(finder, html_tree->node_html, selectors_list, &collection);
+            if (collection) {
+                for (size_t i=0; i<collection->length; i++) {
+                    char* str = css_engine_serialize(collection->list[i]);
+                    printf("%s\n", str);
+                    free(str);
+                }
+            }
+        }
 
-    /* print result */
-    /* print selector */
-    printf("Incoming selector:\n\t");
-    mycss_selectors_serialization_list(mycss_entry_selectors(css_entry),
-                                       selectors_list, serialization_callback, NULL);
-    printf("\n\n");
+        free_file(file);
+    }
 
-    /* print tree */
-    // printf("Incoming tree:\n\t");
-    // myhtml_serialization_tree_callback(html_tree->node_html, serialization_callback, NULL);
-
-    /* print found result */
-    printf("\n\nFound nodes:");
-    print_found_result(html_tree, collection);
-
-    /* destroy all */
-    myhtml_collection_destroy(collection);
-
-    /* destroy selector list */
-    mycss_selectors_list_destroy(mycss_entry_selectors(css_entry), selectors_list, true);
-
-    /* destroy Modest Finder */
-    modest_finder_destroy(finder, true);
-
-    /* destroy MyCSS */
-    mycss_t *mycss = css_entry->mycss;
-    mycss_entry_destroy(css_entry, true);
-    mycss_destroy(mycss, true);
-
-    /* destroy MyHTML */
-    myhtml_t* myhtml = html_tree->myhtml;
-    myhtml_tree_destroy(html_tree);
-    myhtml_destroy(myhtml);
-
+    css_engine_destroy(engine);
 
 }
