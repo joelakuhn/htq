@@ -9,6 +9,7 @@
 
 struct options {
     int nonl;
+    char line_separator;
     str_arr_t css_queries;
     str_arr_t attributes;
 };
@@ -17,11 +18,13 @@ int main(int argc, char **argv) {
 
     struct options options;
     options.css_queries = *str_arr_new();
+    options.line_separator = '\n';
 
     str_arr_t files = *str_arr_new();
 
     static struct option long_options[] = {
         { "nonl", no_argument, 0, 'n' },
+        { "print0", no_argument, 0, '0' },
         { "css_query", no_argument, 0, 'c' },
         { "attribute", no_argument, 0, 'a' }
     };
@@ -31,7 +34,7 @@ int main(int argc, char **argv) {
 
     while (1) {
 
-        c = getopt_long(argc, argv, "nc:a:", long_options, &option_index);
+        c = getopt_long(argc, argv, "n0c:a:", long_options, &option_index);
 
         if (c == -1) break;
 
@@ -49,6 +52,9 @@ int main(int argc, char **argv) {
             if (optarg) {
                 str_arr_push(&options.attributes, optarg);
             }
+            break;
+        case '0':
+            options.line_separator = '\0';
         }
     }
 
@@ -84,13 +90,13 @@ int main(int argc, char **argv) {
                         for (int attr_ind = 0; attr_ind < options.attributes.len; attr_ind++) {
                             myhtml_tree_attr_t* attr = myhtml_attribute_by_key(collection->list[i], options.attributes.strs[attr_ind], strlen(options.attributes.strs[attr_ind]));
                             if (attr) {
-                                printf("%s\n", attr->value.data);
+                                printf("%s%c", attr->value.data, options.line_separator);
                             }
                         }
                     }
                     else {
                         char* str = css_engine_serialize(collection->list[i]);
-                        printf("%s\n", str);
+                        printf("%s%c", str, options.line_separator);
                         free(str);
                     }
                 }
