@@ -10,6 +10,7 @@
 struct options {
     int nonl;
     str_arr_t css_queries;
+    str_arr_t attributes;
 };
 
 int main(int argc, char **argv) {
@@ -21,7 +22,8 @@ int main(int argc, char **argv) {
 
     static struct option long_options[] = {
         { "nonl", no_argument, 0, 'n' },
-        { "css_query", no_argument, 0, 'c' }
+        { "css_query", no_argument, 0, 'c' },
+        { "attribute", no_argument, 0, 'a' }
     };
 
     int c = 0;
@@ -29,7 +31,7 @@ int main(int argc, char **argv) {
 
     while (1) {
 
-        c = getopt_long(argc, argv, "nc:", long_options, &option_index);
+        c = getopt_long(argc, argv, "nc:a:", long_options, &option_index);
 
         if (c == -1) break;
 
@@ -43,6 +45,10 @@ int main(int argc, char **argv) {
                 str_arr_push(&options.css_queries, optarg);
             }
             break;
+        case 'a':
+            if (optarg) {
+                str_arr_push(&options.attributes, optarg);
+            }
         }
     }
 
@@ -74,9 +80,19 @@ int main(int argc, char **argv) {
 
             if (collection) {
                 for (size_t i=0; i<collection->length; i++) {
-                    char* str = css_engine_serialize(collection->list[i]);
-                    printf("%s\n", str);
-                    free(str);
+                    if (options.attributes.len > 0) {
+                        for (int attr_ind = 0; attr_ind < options.attributes.len; attr_ind++) {
+                            myhtml_tree_attr_t* attr = myhtml_attribute_by_key(collection->list[i], options.attributes.strs[attr_ind], strlen(options.attributes.strs[attr_ind]));
+                            if (attr) {
+                                printf("%s\n", attr->value.data);
+                            }
+                        }
+                    }
+                    else {
+                        char* str = css_engine_serialize(collection->list[i]);
+                        printf("%s\n", str);
+                        free(str);
+                    }
                 }
             }
         }
