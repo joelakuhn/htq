@@ -71,8 +71,61 @@ myhtml_collection_t* css_engine_query(css_engine_t* engine, mycss_selectors_list
 
 char* css_engine_serialize(myhtml_tree_node_t* node) {
     mycore_string_raw_t str = {0};
-    myhtml_serialization_node(node, &str);
+    myhtml_serialization(node, &str);
     return str.data;
+}
+
+void css_engine_print_pretty(myhtml_tree_node_t* node, int level) {
+    size_t size;
+    mystatus_t status;
+    const char* text;
+    char* firstchar;
+    char* lastchar;
+
+    mycore_string_raw_t str = {0};
+    myhtml_tree_node_t* child;
+
+    switch(node->tag_id) {
+    case (MyHTML_TAG__TEXT):
+        text = myhtml_node_text(node, &size);
+        firstchar = (char*)text;
+        while (*firstchar == ' ' || *firstchar == '\t' || *firstchar == '\n' || *firstchar == '\r') {
+            firstchar++;
+        }
+        lastchar = firstchar + strlen(firstchar) - 1;
+        while (*lastchar == ' ' || *lastchar == '\t' || *lastchar == '\n' || *lastchar == '\r') {
+            lastchar--;
+        }
+        *++lastchar = '\0';
+
+        if (strlen(firstchar) > 0) {
+            for (int i=0; i<level; i++) printf("  ");
+            printf("%s\n", firstchar);
+        }
+        break;
+    case (MyHTML_TAG__COMMENT):
+        for (int i=0; i<level; i++) printf("  ");
+        printf("%s", "<!--");
+        text = myhtml_node_text(node, &size);
+        printf("%s", text);
+        printf("%s\n", "-->");
+        break;
+    case (MyHTML_TAG__UNDEF):
+        break;
+    default:
+        for (int i=0; i<level; i++) printf("  ");
+        status = myhtml_serialization_node(node, &str);
+        printf("%s\n", str.data);
+        child = node->child;
+        while (child != 0) {
+            css_engine_print_pretty(child, level + 2);
+            child = child->next;
+        }
+        for (int i=0; i<level; i++) printf("  ");
+        text = myhtml_tag_name_by_id(node->tree, node->tag_id, &size);
+        printf("<%s>\n", text);
+        break;
+    }
 }
 
 void css_engine_destroy(css_engine_t* engine) {

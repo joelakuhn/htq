@@ -10,6 +10,7 @@
 struct options {
     int nonl;
     char line_separator;
+    int pretty;
     str_arr_t css_queries;
     str_arr_t attributes;
 };
@@ -17,14 +18,16 @@ struct options {
 int main(int argc, char **argv) {
 
     struct options options;
-    options.css_queries = *str_arr_new();
+    options.pretty = 0;
     options.line_separator = '\n';
+    options.css_queries = *str_arr_new();
 
     str_arr_t files = *str_arr_new();
 
     static struct option long_options[] = {
         { "nonl", no_argument, 0, 'n' },
         { "print0", no_argument, 0, '0' },
+        { "pretty", no_argument, 0, 'p' },
         { "css_query", no_argument, 0, 'c' },
         { "attribute", no_argument, 0, 'a' }
     };
@@ -34,7 +37,7 @@ int main(int argc, char **argv) {
 
     while (1) {
 
-        c = getopt_long(argc, argv, "n0c:a:", long_options, &option_index);
+        c = getopt_long(argc, argv, "n0pc:a:", long_options, &option_index);
 
         if (c == -1) break;
 
@@ -42,6 +45,9 @@ int main(int argc, char **argv) {
         {
         case 'n':
             options.nonl = 1;
+            break;
+        case 'p':
+            options.pretty = 1;
             break;
         case 'c':
             if (optarg) {
@@ -71,6 +77,9 @@ int main(int argc, char **argv) {
     mycss_selectors_list_t** selectors = malloc((sizeof(mycss_selectors_list_t*) * options.css_queries.len));
     for (int i=0; i<options.css_queries.len; i++) {
         selectors[i] = css_engine_parse_selector(engine, options.css_queries.strs[i]);
+        if (selectors[i] == 0) {
+            return 1;
+        }
     }
 
     for (int file_ind = 0; file_ind < files.len; file_ind++) {
@@ -93,6 +102,9 @@ int main(int argc, char **argv) {
                                 printf("%s%c", attr->value.data, options.line_separator);
                             }
                         }
+                    }
+                    else if (options.pretty) {
+                        css_engine_print_pretty(collection->list[i], 0);
                     }
                     else {
                         char* str = css_engine_serialize(collection->list[i]);
