@@ -12,6 +12,7 @@ struct options {
     char line_separator;
     int pretty;
     int text;
+    int list;
     str_arr_t css_queries;
     str_arr_t attributes;
 };
@@ -20,6 +21,7 @@ int main(int argc, char **argv) {
 
     struct options options;
     options.pretty = 0;
+    options.list = 0;
     options.line_separator = '\n';
     options.css_queries = *str_arr_new();
 
@@ -30,6 +32,7 @@ int main(int argc, char **argv) {
         { "print0", no_argument, 0, '0' },
         { "pretty", no_argument, 0, 'p' },
         { "text", no_argument, 0, 't' },
+        { "list", no_argument, 0, 'l' },
         { "css_query", no_argument, 0, 'c' },
         { "attribute", no_argument, 0, 'a' }
     };
@@ -39,7 +42,7 @@ int main(int argc, char **argv) {
 
     while (1) {
 
-        c = getopt_long(argc, argv, "n0ptc:a:", long_options, &option_index);
+        c = getopt_long(argc, argv, "n0ptlc:a:", long_options, &option_index);
 
         if (c == -1) break;
 
@@ -53,6 +56,9 @@ int main(int argc, char **argv) {
             break;
         case 't':
             options.text = 1;
+            break;
+        case 'l':
+            options.list = 1;
             break;
         case 'c':
             if (optarg) {
@@ -103,26 +109,36 @@ int main(int argc, char **argv) {
             myhtml_collection_t* collection = css_engine_query(engine, selectors[sel_ind]);
 
             if (collection) {
-                for (size_t i=0; i<collection->length; i++) {
-                    if (options.attributes.len > 0) {
-                        for (int attr_ind = 0; attr_ind < options.attributes.len; attr_ind++) {
-                            myhtml_tree_attr_t* attr = myhtml_attribute_by_key(collection->list[i], options.attributes.strs[attr_ind], strlen(options.attributes.strs[attr_ind]));
-                            if (attr) {
-                                printf("%s%c", attr->value.data, options.line_separator);
-                            }
-                        }
-                    }
-                    else if (options.text) {
-                        css_engine_print_text(collection->list[i]);
-                        putc('\n', stdout);
-                    }
-                    else if (options.pretty) {
-                        css_engine_print_pretty(collection->list[i], 0);
+                if (options.list && collection->length > 0) {
+                    if (files.strs[file_ind] == (char*) -1) {
+                        printf("STDIN\n");
                     }
                     else {
-                        char* str = css_engine_serialize(collection->list[i]);
-                        printf("%s%c", str, options.line_separator);
-                        free(str);
+                        printf("%s\n", files.strs[file_ind]);
+                    }
+                }
+                else {
+                    for (size_t i=0; i<collection->length; i++) {
+                        if (options.attributes.len > 0) {
+                            for (int attr_ind = 0; attr_ind < options.attributes.len; attr_ind++) {
+                                myhtml_tree_attr_t* attr = myhtml_attribute_by_key(collection->list[i], options.attributes.strs[attr_ind], strlen(options.attributes.strs[attr_ind]));
+                                if (attr) {
+                                    printf("%s%c", attr->value.data, options.line_separator);
+                                }
+                            }
+                        }
+                        else if (options.text) {
+                            css_engine_print_text(collection->list[i]);
+                            putc('\n', stdout);
+                        }
+                        else if (options.pretty) {
+                            css_engine_print_pretty(collection->list[i], 0);
+                        }
+                        else {
+                            char* str = css_engine_serialize(collection->list[i]);
+                            printf("%s%c", str, options.line_separator);
+                            free(str);
+                        }
                     }
                 }
             }
