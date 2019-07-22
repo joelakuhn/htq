@@ -76,7 +76,12 @@ int main(int argc, char **argv) {
     }
 
     for (int index = optind; index < argc; index++) {
-        str_arr_push(&files, argv[index]);
+        if (strcmp("-", argv[index]) == 0) {
+            str_arr_push(&files, (char*) -1);
+        }
+        else {
+            str_arr_push(&files, argv[index]);
+        }
     }
 
     if (options.css_queries.len == 0 && files.len > 0) {
