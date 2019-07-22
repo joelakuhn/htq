@@ -128,6 +128,21 @@ void css_engine_print_pretty(myhtml_tree_node_t* node, int level) {
     }
 }
 
+void css_engine_print_text(myhtml_tree_node_t* node) {
+    if (node->tag_id == MyHTML_TAG__TEXT) {
+        size_t size;
+        const char* text = myhtml_node_text(node, &size);
+        printf("%s", text);
+    }
+    else {
+        myhtml_tree_node_t* child = node->child;
+        while (child) {
+            css_engine_print_text(child);
+            child = child->next;
+        }
+    }
+}
+
 void css_engine_destroy(css_engine_t* engine) {
     myhtml_destroy(engine->myhtml);
     myhtml_tree_destroy(engine->tree);

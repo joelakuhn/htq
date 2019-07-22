@@ -11,6 +11,7 @@ struct options {
     int nonl;
     char line_separator;
     int pretty;
+    int text;
     str_arr_t css_queries;
     str_arr_t attributes;
 };
@@ -28,6 +29,7 @@ int main(int argc, char **argv) {
         { "nonl", no_argument, 0, 'n' },
         { "print0", no_argument, 0, '0' },
         { "pretty", no_argument, 0, 'p' },
+        { "text", no_argument, 0, 't' },
         { "css_query", no_argument, 0, 'c' },
         { "attribute", no_argument, 0, 'a' }
     };
@@ -37,7 +39,7 @@ int main(int argc, char **argv) {
 
     while (1) {
 
-        c = getopt_long(argc, argv, "n0pc:a:", long_options, &option_index);
+        c = getopt_long(argc, argv, "n0ptc:a:", long_options, &option_index);
 
         if (c == -1) break;
 
@@ -48,6 +50,9 @@ int main(int argc, char **argv) {
             break;
         case 'p':
             options.pretty = 1;
+            break;
+        case 't':
+            options.text = 1;
             break;
         case 'c':
             if (optarg) {
@@ -102,6 +107,9 @@ int main(int argc, char **argv) {
                                 printf("%s%c", attr->value.data, options.line_separator);
                             }
                         }
+                    }
+                    else if (options.text) {
+                        css_engine_print_text(collection->list[i]);
                     }
                     else if (options.pretty) {
                         css_engine_print_pretty(collection->list[i], 0);
