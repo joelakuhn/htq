@@ -87,6 +87,10 @@ int main(int argc, char **argv) {
         }
     }
 
+    if (files.len == 0) {
+        str_arr_push(&files, (char*) -1);
+    }
+
     for (int file_ind = 0; file_ind < files.len; file_ind++) {
         char* selector = options.css_queries.strs[0];
 
@@ -110,6 +114,7 @@ int main(int argc, char **argv) {
                     }
                     else if (options.text) {
                         css_engine_print_text(collection->list[i]);
+                        putc('\n', stdout);
                     }
                     else if (options.pretty) {
                         css_engine_print_pretty(collection->list[i], 0);
