@@ -33,6 +33,7 @@ int main(int argc, char **argv) {
     struct options options;
     options.pretty = 0;
     options.list = 0;
+    options.text = 0;
     options.line_separator = '\n';
     options.css_queries = str_arr_new();
     options.attributes = str_arr_new();
