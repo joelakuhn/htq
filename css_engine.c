@@ -50,7 +50,7 @@ void css_engine_parse_html(css_engine_t* engine, struct file_contents* file) {
 
 }
 
-mycss_selectors_list_t* css_engine_parse_selector(css_engine_t* engine, char* selector) {
+mycss_selectors_list_t* css_engine_parse_selector(css_engine_t* engine, const char* selector) {
     mystatus_t status;
 
     mycss_selectors_t* selectors = mycss_entry_selectors(engine->entry);

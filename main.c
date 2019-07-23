@@ -24,8 +24,8 @@ struct options {
     int pretty;
     int text;
     int list;
-    str_arr_t css_queries;
-    str_arr_t attributes;
+    str_arr_t* css_queries;
+    str_arr_t* attributes;
 };
 
 int main(int argc, char **argv) {
@@ -34,9 +34,10 @@ int main(int argc, char **argv) {
     options.pretty = 0;
     options.list = 0;
     options.line_separator = '\n';
-    options.css_queries = *str_arr_new();
+    options.css_queries = str_arr_new();
+    options.attributes = str_arr_new();
 
-    str_arr_t files = *str_arr_new();
+    str_arr_t* files = str_arr_new();
 
     static struct option long_options[] = {
         { "nonl", no_argument, 0, 'n' },
@@ -74,12 +75,12 @@ int main(int argc, char **argv) {
             break;
         case 'c':
             if (optarg) {
-                str_arr_push(&options.css_queries, optarg);
+                str_arr_push(options.css_queries, optarg);
             }
             break;
         case 'a':
             if (optarg) {
-                str_arr_push(&options.attributes, optarg);
+                str_arr_push(options.attributes, optarg);
             }
             break;
         case '0':
@@ -93,18 +94,18 @@ int main(int argc, char **argv) {
 
     for (int index = optind; index < argc; index++) {
         if (strcmp("-", argv[index]) == 0) {
-            str_arr_push(&files, (char*) -1);
+            str_arr_push(files, (char*) -1);
         }
         else {
-            str_arr_push(&files, argv[index]);
+            str_arr_push(files, argv[index]);
         }
     }
 
-    if (options.css_queries.len == 0 && files.len > 0) {
-        str_arr_push(&options.css_queries, str_arr_shift(&files));
+    if (options.css_queries->len == 0 && files->len > 0) {
+        str_arr_push(options.css_queries, str_arr_shift(files));
     }
 
-    if (options.css_queries.len == 0) {
+    if (options.css_queries->len == 0) {
         printf("At least one css query is required.\n\n");
         print_usage();
         return 0;
@@ -112,43 +113,41 @@ int main(int argc, char **argv) {
 
     css_engine_t* engine = css_engine_new();
 
-    mycss_selectors_list_t** selectors = malloc((sizeof(mycss_selectors_list_t*) * options.css_queries.len));
-    for (int i=0; i<options.css_queries.len; i++) {
-        selectors[i] = css_engine_parse_selector(engine, options.css_queries.strs[i]);
+    mycss_selectors_list_t** selectors = malloc((sizeof(mycss_selectors_list_t*) * options.css_queries->len));
+    for (int i=0; i<options.css_queries->len; i++) {
+        selectors[i] = css_engine_parse_selector(engine, options.css_queries->strs[i]);
         if (selectors[i] == 0) {
             return 1;
         }
     }
 
-    if (files.len == 0) {
-        str_arr_push(&files, (char*) -1);
+    if (files->len == 0) {
+        str_arr_push(files, (char*) -1);
     }
 
-    for (int file_ind = 0; file_ind < files.len; file_ind++) {
-        char* selector = options.css_queries.strs[0];
-
-        struct file_contents* file = read_file(files.strs[file_ind]);
+    for (int file_ind = 0; file_ind < files->len; file_ind++) {
+        struct file_contents* file = read_file(files->strs[file_ind]);
         if (file == 0) { return 1; }
 
         css_engine_parse_html(engine, file);
 
-        for (int sel_ind = 0; sel_ind < options.css_queries.len; sel_ind++) {
+        for (int sel_ind = 0; sel_ind < options.css_queries->len; sel_ind++) {
             myhtml_collection_t* collection = css_engine_query(engine, selectors[sel_ind]);
 
             if (collection) {
                 if (options.list && collection->length > 0) {
-                    if (files.strs[file_ind] == (char*) -1) {
+                    if (files->strs[file_ind] == (char*) -1) {
                         printf("STDIN\n");
                     }
                     else {
-                        printf("%s\n", files.strs[file_ind]);
+                        printf("%s\n", files->strs[file_ind]);
                     }
                 }
                 else {
                     for (size_t i=0; i<collection->length; i++) {
-                        if (options.attributes.len > 0) {
-                            for (int attr_ind = 0; attr_ind < options.attributes.len; attr_ind++) {
-                                myhtml_tree_attr_t* attr = myhtml_attribute_by_key(collection->list[i], options.attributes.strs[attr_ind], strlen(options.attributes.strs[attr_ind]));
+                        if (options.attributes->len > 0) {
+                            for (int attr_ind = 0; attr_ind < options.attributes->len; attr_ind++) {
+                                myhtml_tree_attr_t* attr = myhtml_attribute_by_key(collection->list[i], options.attributes->strs[attr_ind], strlen(options.attributes->strs[attr_ind]));
                                 if (attr) {
                                     printf("%s%c", attr->value.data, options.line_separator);
                                 }
@@ -168,6 +167,7 @@ int main(int argc, char **argv) {
                         }
                     }
                 }
+                myhtml_collection_destroy(collection);
             }
         }
 
@@ -175,5 +175,9 @@ int main(int argc, char **argv) {
     }
 
     css_engine_destroy(engine);
+
+    str_arr_destroy(options.css_queries);
+    str_arr_destroy(options.attributes);
+    str_arr_destroy(files);
 
 }
