@@ -34,7 +34,7 @@ usage: htq [css_query] [options] [file ...]
     <blockquote>
       <p>Oh how I wish I could shut up like a telescope!</p>
       <p>I think I could, if I only knew how to begin.</p>
-      <footer> — Alice in Wonderland</footer>
+      <footer> — Lewis Carroll, Alice's Adventures in Wonderland</footer>
     </blockquote>
     <ul>
       <li><a href="#link-1">Link 1</a></li>
