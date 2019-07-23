@@ -124,6 +124,7 @@ void css_engine_print_pretty(myhtml_tree_node_t* node, int level) {
         for (int i=0; i<level; i++) printf("  ");
         text = myhtml_tag_name_by_id(node->tree, node->tag_id, &size);
         printf("<%s>\n", text);
+        free(str.data);
         break;
     }
 }
