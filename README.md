@@ -54,6 +54,9 @@ I think I could, if I only knew how to begin.
 $ htq a --attr href test.html
 #link-1
 #link-2
-$ curl -s https://example.com | htq h1
-<h1>Example Domain</h1>
+$ curl -s https://github.com/joelakuhn/htq | htq -c 'article h1' -c 'article h2' -t
+HTQ
+Building
+Usage
+Examples
 ```
