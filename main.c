@@ -175,6 +175,8 @@ int main(int argc, char **argv) {
         free_file(file);
     }
 
+    free(selectors);
+
     css_engine_destroy(engine);
 
     str_arr_destroy(options.css_queries);
