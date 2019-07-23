@@ -14,7 +14,7 @@ str_arr_t* str_arr_new() {
 
 void str_arr_push(str_arr_t* str_arr, char* str) {
     if ((str_arr->len + 1) >= str_arr->allocated) {
-        str_arr->strs = (char**) realloc(str_arr->strs, str_arr->allocated + 10);
+        str_arr->strs = (char**) realloc(str_arr->strs, (str_arr->allocated + 10) * sizeof(char*));
         str_arr->allocated += 10;
     }
     str_arr->strs[str_arr->len] = str;
