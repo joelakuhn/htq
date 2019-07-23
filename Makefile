@@ -1,4 +1,4 @@
-CFLAGS = -lm -pthread -std=c99 -IModest/source/
+CFLAGS = -Werror -lm -pthread -std=c99 -IModest/source/
 
 htq: main.c Modest/lib/libmodest_static.a
 	cc $(CFLAGS) main.c Modest/lib/libmodest_static.a -o htq
