@@ -7,6 +7,17 @@
 
 #include "str_arr.c"
 
+void print_usage() {
+    printf("usage: htq [css_query] [options] [file ...]\n");
+    printf("    -c QUERY, --css=QUERY            Specify a css selector\n");
+    printf("    -a ATTR, --attr=ATTR             Extract an attribute value\n");
+    printf("    -p, --pretty                     Pretty print output\n");
+    printf("    -t, --text                       Print text content only\n");
+    printf("    -0, --print0                     Separate output by NULL\n");
+    printf("    -l, --list-files                 List matching files without matches\n");
+    printf("    -h, --help                       Print help message\n");
+}
+
 struct options {
     int nonl;
     char line_separator;
@@ -34,7 +45,8 @@ int main(int argc, char **argv) {
         { "text", no_argument, 0, 't' },
         { "list", no_argument, 0, 'l' },
         { "css_query", no_argument, 0, 'c' },
-        { "attribute", no_argument, 0, 'a' }
+        { "attribute", no_argument, 0, 'a' },
+        { "help", no_argument, 0, 'h' }
     };
 
     int c = 0;
@@ -42,7 +54,7 @@ int main(int argc, char **argv) {
 
     while (1) {
 
-        c = getopt_long(argc, argv, "n0ptlc:a:", long_options, &option_index);
+        c = getopt_long(argc, argv, "n0ptlhc:a:", long_options, &option_index);
 
         if (c == -1) break;
 
@@ -72,6 +84,10 @@ int main(int argc, char **argv) {
             break;
         case '0':
             options.line_separator = '\0';
+            break;
+        case 'h':
+            print_usage();
+            return 0;
         }
     }
 
@@ -86,6 +102,12 @@ int main(int argc, char **argv) {
 
     if (options.css_queries.len == 0 && files.len > 0) {
         str_arr_push(&options.css_queries, str_arr_shift(&files));
+    }
+
+    if (options.css_queries.len == 0) {
+        printf("At least one css query is required.\n\n");
+        print_usage();
+        return 0;
     }
 
     css_engine_t* engine = css_engine_new();
