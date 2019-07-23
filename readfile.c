@@ -90,6 +90,7 @@ struct file_contents* read_file(const char* filename)
 
 void free_file(struct file_contents* file) {
     free(file->data);
+    free(file);
 }
 
 #endif

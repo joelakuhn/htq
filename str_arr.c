@@ -50,4 +50,5 @@ const char* str_arr_shift(str_arr_t* str_arr) {
 
 void str_arr_destroy(str_arr_t* str_arr) {
     free(str_arr->_tail);
+    free(str_arr);
 }

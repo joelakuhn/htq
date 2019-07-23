@@ -149,4 +149,6 @@ void css_engine_destroy(css_engine_t* engine) {
     mycss_destroy(engine->mycss, true);
     mycss_entry_destroy(engine->entry, true);
     modest_finder_destroy(engine->finder, true);
+
+    free(engine);
 }
