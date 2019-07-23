@@ -1,6 +1,5 @@
 typedef struct {
     const char** strs;
-    const char** _tail;
     int len;
     int allocated;
 } str_arr_t;
@@ -8,7 +7,6 @@ typedef struct {
 str_arr_t* str_arr_new() {
     str_arr_t* str_arr = malloc(sizeof(str_arr_t));
     str_arr->strs = malloc(sizeof(const char*) * 10);
-    str_arr->_tail = str_arr->strs;
     str_arr->allocated = 10;
     str_arr->len = 0;
     return str_arr;
@@ -38,9 +36,13 @@ const char* str_arr_pop(str_arr_t* str_arr) {
 const char* str_arr_shift(str_arr_t* str_arr) {
     if (str_arr->len > 0) {
         const char* str = str_arr->strs[0];
-        str_arr->strs++;
+        const char** new_strs = malloc(sizeof(const char*) * str_arr->allocated);
+
+        memcpy(new_strs, str_arr->strs + 1, (str_arr->allocated - 1) * sizeof(const char*));
+        free(str_arr->strs);
+        str_arr->strs = new_strs;
+
         str_arr->len--;
-        str_arr->allocated--;
         return str;
     }
     else {
@@ -49,6 +51,6 @@ const char* str_arr_shift(str_arr_t* str_arr) {
 }
 
 void str_arr_destroy(str_arr_t* str_arr) {
-    free(str_arr->_tail);
+    free(str_arr->strs);
     free(str_arr);
 }
