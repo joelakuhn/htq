@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
         { "text", no_argument, 0, 't' },
         { "list", no_argument, 0, 'l' },
         { "css_query", no_argument, 0, 'c' },
-        { "attribute", no_argument, 0, 'a' },
+        { "attr", no_argument, 0, 'a' },
         { "help", no_argument, 0, 'h' }
     };
 
