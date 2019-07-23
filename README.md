@@ -37,8 +37,8 @@ usage: htq [css_query] [options] [file ...]
       <footer> — Alice in Wonderland</footer>
     </blockquote>
     <ul>
-      <a href="#link-1">Link 1</a>
-      <a href="#link-2">Link 2</a>
+      <li><a href="#link-1">Link 1</a></li>
+      <li><a href="#link-2">Link 2</a></li>
     </ul>
   </body>
 </html>
