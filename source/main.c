@@ -33,6 +33,9 @@ struct options {
 
 int main(int argc, char **argv) {
 
+    const char* COLORS_MAGENTA = "\x1b[35mA";
+    const char* COLORS_RESET = "\x1b[0m";
+
     struct options options;
     options.pretty = 0;
     options.list = 0;
@@ -128,6 +131,11 @@ int main(int argc, char **argv) {
         options.file_prefix = files->len > 1;
     }
 
+    if (!isatty(fileno(stdout))) {
+        COLORS_MAGENTA = "";
+        COLORS_RESET = "";
+    }
+
     css_engine_t* engine = css_engine_new();
 
     mycss_selectors_list_t** selectors = malloc((sizeof(mycss_selectors_list_t*) * options.css_queries->len));
@@ -164,10 +172,10 @@ int main(int argc, char **argv) {
                     for (size_t i=0; i<collection->length; i++) {
                         if (options.file_prefix) {
                             if (files->strs[file_ind] == (char*) -1) {
-                                printf("STDIN:");
+                                printf("%s%s:%s", COLORS_MAGENTA, "STDIN", COLORS_RESET);
                             }
                             else {
-                                printf("%s:", files->strs[file_ind]);
+                                printf("%s%s:%s", COLORS_MAGENTA, files->strs[file_ind], COLORS_RESET);
                             }
                         }
                         if (options.attributes->len > 0) {
