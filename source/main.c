@@ -34,7 +34,7 @@ struct options {
 
 int main(int argc, char **argv) {
 
-    const char* COLORS_MAGENTA = "\x1b[35mA";
+    const char* COLORS_MAGENTA = "\x1b[35m";
     const char* COLORS_RESET = "\x1b[0m";
 
     struct options options;
