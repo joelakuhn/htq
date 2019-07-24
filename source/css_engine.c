@@ -1,17 +1,12 @@
+#include <stdlib.h>
+
 #include <mycss/mycss.h>
 #include <modest/finder/finder.h>
 #include <myencoding/encoding.h>
 #include <myhtml/serialization.h>
 
-#include "readfile.c"
-
-typedef struct {
-    myhtml_t* myhtml;
-    myhtml_tree_t* tree;
-    mycss_t* mycss;
-    mycss_entry_t* entry;
-    modest_finder_t* finder;
-} css_engine_t;
+#include "css_engine.h"
+#include "readfile.h"
 
 css_engine_t* css_engine_new() {
     mystatus_t status;

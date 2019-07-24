@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <getopt.h>
 
-#include "readfile.c"
-#include "css_engine.c"
+#include "readfile.h"
+#include "css_engine.h"
 
-#include "str_arr.c"
+#include "str_arr.h"
 
 void print_usage() {
     printf("usage: htq [css_query] [options] [file ...]\n");

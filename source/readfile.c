@@ -1,12 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-#ifndef READFILE
-#define READFILE
-
-struct file_contents {
-    char* data;
-    size_t len;
-};
+#include "readfile.h"
 
 struct file_contents* read_stream(FILE* fh) {
     char* buffer = 0;
@@ -114,5 +109,3 @@ void free_file(struct file_contents* file) {
     free(file->data);
     free(file);
 }
-
-#endif

@@ -1,8 +1,7 @@
-typedef struct {
-    const char** strs;
-    int len;
-    int allocated;
-} str_arr_t;
+#include <string.h>
+#include <stdlib.h>
+
+#include "str_arr.h"
 
 str_arr_t* str_arr_new() {
     str_arr_t* str_arr = malloc(sizeof(str_arr_t));
