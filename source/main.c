@@ -1,135 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <getopt.h>
 #include <unistd.h>
 
+#include "options.h"
 #include "readfile.h"
 #include "css_engine.h"
 
 #include "str_arr.h"
 
-void print_usage() {
-    printf("usage: htq [css_query] [options] [file ...]\n");
-    printf("    -c QUERY, --css=QUERY            Specify a css selector\n");
-    printf("    -a ATTR, --attr=ATTR             Extract an attribute value\n");
-    printf("    -p, --pretty                     Pretty print output\n");
-    printf("    -t, --text                       Print text content only\n");
-    printf("    -0, --print0                     Separate output by NULL\n");
-    printf("    -l, --list-files                 Only print matching file names\n");
-    printf("    -h, --prefix                     Print file name prefix\n");
-    printf("    -H, --no-prefix                  Don't file name prefix\n");
-    printf("    --help                           Print help message\n");
-}
-
-struct options {
-    int nonl;
-    char line_separator;
-    int pretty;
-    int text;
-    int list;
-    int file_prefix;
-    str_arr_t* css_queries;
-    str_arr_t* attributes;
-};
 
 int main(int argc, char **argv) {
 
     const char* COLORS_MAGENTA = "\x1b[35m";
     const char* COLORS_RESET = "\x1b[0m";
 
-    struct options options;
-    options.pretty = 0;
-    options.list = 0;
-    options.text = 0;
-    options.file_prefix = -1;
-    options.line_separator = '\n';
-    options.css_queries = str_arr_new();
-    options.attributes = str_arr_new();
-
-    str_arr_t* files = str_arr_new();
-
-    static struct option long_options[] = {
-        { "nonl", no_argument, 0, 'n' },
-        { "print0", no_argument, 0, '0' },
-        { "pretty", no_argument, 0, 'p' },
-        { "text", no_argument, 0, 't' },
-        { "list", no_argument, 0, 'l' },
-        { "css", no_argument, 0, 'c' },
-        { "attr", no_argument, 0, 'a' },
-        { "prefix", no_argument, 0, 'h' },
-        { "no-prefix", no_argument, 0, 'H' },
-        { "help", no_argument, 0, '?' }
-    };
-
-    int c = 0;
-    int option_index = 0;
-
-    while (1) {
-
-        c = getopt_long(argc, argv, "n0ptlhH?c:a:", long_options, &option_index);
-
-        if (c == -1) break;
-
-        switch (c)
-        {
-        case 'n':
-            options.nonl = 1;
-            break;
-        case 'p':
-            options.pretty = 1;
-            break;
-        case 't':
-            options.text = 1;
-            break;
-        case 'l':
-            options.list = 1;
-            break;
-        case 'c':
-            if (optarg) {
-                str_arr_push(options.css_queries, optarg);
-            }
-            break;
-        case 'a':
-            if (optarg) {
-                str_arr_push(options.attributes, optarg);
-            }
-            break;
-        case '0':
-            options.line_separator = '\0';
-            break;
-        case 'h':
-            options.file_prefix = 1;
-            break;
-        case 'H':
-            options.file_prefix = 0;
-            break;
-        case '?':
-            print_usage();
-            return 0;
-        }
-    }
-
-    for (int index = optind; index < argc; index++) {
-        if (strcmp("-", argv[index]) == 0) {
-            str_arr_push(files, (char*) -1);
-        }
-        else {
-            str_arr_push(files, argv[index]);
-        }
-    }
-
-    if (options.css_queries->len == 0 && files->len > 0) {
-        str_arr_push(options.css_queries, str_arr_shift(files));
-    }
-
-    if (options.css_queries->len == 0) {
-        printf("At least one css query is required.\n\n");
-        print_usage();
+    options_t options;
+    if (!options_parse(&options, argc, argv)) {
         return 0;
-    }
-
-    if (options.file_prefix == -1) {
-        options.file_prefix = files->len > 1;
     }
 
     if (!isatty(STDOUT_FILENO)) {
@@ -147,12 +34,12 @@ int main(int argc, char **argv) {
         }
     }
 
-    if (files->len == 0) {
-        str_arr_push(files, (char*) -1);
+    if (options.files->len == 0) {
+        str_arr_push(options.files, (char*) -1);
     }
 
-    for (int file_ind = 0; file_ind < files->len; file_ind++) {
-        struct file_contents* file = read_file(files->strs[file_ind]);
+    for (int file_ind = 0; file_ind < options.files->len; file_ind++) {
+        struct file_contents* file = read_file(options.files->strs[file_ind]);
         if (file == 0) { return 1; }
 
         css_engine_parse_html(engine, file);
@@ -162,21 +49,21 @@ int main(int argc, char **argv) {
 
             if (collection) {
                 if (options.list && collection->length > 0) {
-                    if (files->strs[file_ind] == (char*) -1) {
+                    if (options.files->strs[file_ind] == (char*) -1) {
                         printf("STDIN\n");
                     }
                     else {
-                        printf("%s\n", files->strs[file_ind]);
+                        printf("%s\n", options.files->strs[file_ind]);
                     }
                 }
                 else {
                     for (size_t i=0; i<collection->length; i++) {
                         if (options.file_prefix) {
-                            if (files->strs[file_ind] == (char*) -1) {
+                            if (options.files->strs[file_ind] == (char*) -1) {
                                 printf("%s%s:%s", COLORS_MAGENTA, "STDIN", COLORS_RESET);
                             }
                             else {
-                                printf("%s%s:%s", COLORS_MAGENTA, files->strs[file_ind], COLORS_RESET);
+                                printf("%s%s:%s", COLORS_MAGENTA, options.files->strs[file_ind], COLORS_RESET);
                             }
                         }
                         if (options.attributes->len > 0) {
@@ -193,6 +80,7 @@ int main(int argc, char **argv) {
                         }
                         else if (options.pretty) {
                             css_engine_print_pretty(collection->list[i], 0);
+                            if (options.line_separator == '\0') putc('\0', stdout);
                         }
                         else {
                             char* str = css_engine_serialize(collection->list[i]);
@@ -214,6 +102,6 @@ int main(int argc, char **argv) {
 
     str_arr_destroy(options.css_queries);
     str_arr_destroy(options.attributes);
-    str_arr_destroy(files);
+    str_arr_destroy(options.files);
 
 }
