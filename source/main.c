@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
+#include <unistd.h>
 
 #include "readfile.h"
 #include "css_engine.h"
@@ -131,7 +132,7 @@ int main(int argc, char **argv) {
         options.file_prefix = files->len > 1;
     }
 
-    if (!isatty(fileno(stdout))) {
+    if (!isatty(STDOUT_FILENO)) {
         COLORS_MAGENTA = "";
         COLORS_RESET = "";
     }
