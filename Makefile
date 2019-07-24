@@ -12,7 +12,7 @@ MODEST_FLAGS =
 all: htq
 
 
-debug: CFLAGS += -g
+debug: CCFLAGS += -g
 debug: MODEST_FLAGS += MyCORE_BUILD_DEBUG=YES
 debug: htq
 

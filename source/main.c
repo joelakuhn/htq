@@ -14,8 +14,10 @@ void print_usage() {
     printf("    -p, --pretty                     Pretty print output\n");
     printf("    -t, --text                       Print text content only\n");
     printf("    -0, --print0                     Separate output by NULL\n");
-    printf("    -l, --list-files                 List matching files without matches\n");
-    printf("    -h, --help                       Print help message\n");
+    printf("    -l, --list-files                 Only print matching file names\n");
+    printf("    -h, --prefix                     Print file name prefix\n");
+    printf("    -H, --no-prefix                  Don't file name prefix\n");
+    printf("    --help                           Print help message\n");
 }
 
 struct options {
@@ -24,6 +26,7 @@ struct options {
     int pretty;
     int text;
     int list;
+    int file_prefix;
     str_arr_t* css_queries;
     str_arr_t* attributes;
 };
@@ -34,6 +37,7 @@ int main(int argc, char **argv) {
     options.pretty = 0;
     options.list = 0;
     options.text = 0;
+    options.file_prefix = -1;
     options.line_separator = '\n';
     options.css_queries = str_arr_new();
     options.attributes = str_arr_new();
@@ -46,9 +50,11 @@ int main(int argc, char **argv) {
         { "pretty", no_argument, 0, 'p' },
         { "text", no_argument, 0, 't' },
         { "list", no_argument, 0, 'l' },
-        { "css_query", no_argument, 0, 'c' },
+        { "css", no_argument, 0, 'c' },
         { "attr", no_argument, 0, 'a' },
-        { "help", no_argument, 0, 'h' }
+        { "prefix", no_argument, 0, 'h' },
+        { "no-prefix", no_argument, 0, 'H' },
+        { "help", no_argument, 0, '?' }
     };
 
     int c = 0;
@@ -56,7 +62,7 @@ int main(int argc, char **argv) {
 
     while (1) {
 
-        c = getopt_long(argc, argv, "n0ptlhc:a:", long_options, &option_index);
+        c = getopt_long(argc, argv, "n0ptlhH?c:a:", long_options, &option_index);
 
         if (c == -1) break;
 
@@ -88,6 +94,12 @@ int main(int argc, char **argv) {
             options.line_separator = '\0';
             break;
         case 'h':
+            options.file_prefix = 1;
+            break;
+        case 'H':
+            options.file_prefix = 0;
+            break;
+        case '?':
             print_usage();
             return 0;
         }
@@ -110,6 +122,10 @@ int main(int argc, char **argv) {
         printf("At least one css query is required.\n\n");
         print_usage();
         return 0;
+    }
+
+    if (options.file_prefix == -1) {
+        options.file_prefix = files->len > 1;
     }
 
     css_engine_t* engine = css_engine_new();
@@ -146,6 +162,14 @@ int main(int argc, char **argv) {
                 }
                 else {
                     for (size_t i=0; i<collection->length; i++) {
+                        if (options.file_prefix) {
+                            if (files->strs[file_ind] == (char*) -1) {
+                                printf("STDIN:");
+                            }
+                            else {
+                                printf("%s:", files->strs[file_ind]);
+                            }
+                        }
                         if (options.attributes->len > 0) {
                             for (int attr_ind = 0; attr_ind < options.attributes->len; attr_ind++) {
                                 myhtml_tree_attr_t* attr = myhtml_attribute_by_key(collection->list[i], options.attributes->strs[attr_ind], strlen(options.attributes->strs[attr_ind]));
