@@ -3,31 +3,31 @@ CCFLAGS = -Werror -std=c99 -IModest/source/
 LINK_FLAGS = -lm -pthread
 
 SOURCES=$(wildcard source/*.c)
-
 OBJECTS=$(SOURCES:.c=.o)
 
 MODEST_FLAGS =
+MODEST_ARCHIVE = Modest/lib/libmodest_static.a
 
 
 all: htq
 
 
-debug: CCFLAGS += -g
+debug: CCFLAGS += -g3
 debug: MODEST_FLAGS += MyCORE_BUILD_DEBUG=YES
 debug: htq
 
 
-htq: $(OBJECTS) Modest/lib/libmodest_static.a
-	$(CC) $(LINK_FLAGS) $(CCFLAGS) $(OBJECTS) Modest/lib/libmodest_static.a -o htq
+htq: Modest/lib/libmodest_static.a $(OBJECTS)
+	$(CC) $(LINK_FLAGS) $(CCFLAGS) $(OBJECTS) $(MODEST_ARCHIVE) -o htq
 
 source/%.o: source/%.c
 	$(CC) $(CCFLAGS) -c $^ -o $@
 
 Modest/lib/libmodest_static.a:
-	$(MAKE) -C Modest library $(MODEST_FLAGS)
+	$(MAKE) -C Modest static $(MODEST_FLAGS)
 
 clean:
 	rm -rf htq*
-	rm source/*.o
+	rm -f source/*.o
 	$(MAKE) -C Modest clean
 
