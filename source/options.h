@@ -1,7 +1,7 @@
 #ifndef OPTIONS
 #define OPTIONS
 
-#include "str_arr.h"
+#include "str_vec.h"
 
 typedef struct {
     int nonl;
@@ -10,9 +10,9 @@ typedef struct {
     int text;
     int list;
     int file_prefix;
-    str_arr_t* css_queries;
-    str_arr_t* attributes;
-    str_arr_t* files;
+    str_vec_t* css_queries;
+    str_vec_t* attributes;
+    str_vec_t* files;
 } options_t;
 
 void print_usage();

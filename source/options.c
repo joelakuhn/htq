@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include "options.h"
-#include "str_arr.h"
+#include "str_vec.h"
 
 
 void print_usage() {
@@ -27,9 +27,9 @@ int options_parse(options_t* options, int argc, char** argv) {
     options->text = 0;
     options->file_prefix = -1;
     options->line_separator = '\n';
-    options->css_queries = str_arr_new();
-    options->attributes = str_arr_new();
-    options->files = str_arr_new();
+    options->css_queries = str_vec_new();
+    options->attributes = str_vec_new();
+    options->files = str_vec_new();
 
     static struct option long_options[] = {
         { "nonl", no_argument, 0, 'n' },
@@ -69,12 +69,12 @@ int options_parse(options_t* options, int argc, char** argv) {
             break;
         case 'c':
             if (optarg) {
-                str_arr_push(options->css_queries, optarg);
+                str_vec_push(options->css_queries, optarg);
             }
             break;
         case 'a':
             if (optarg) {
-                str_arr_push(options->attributes, optarg);
+                str_vec_push(options->attributes, optarg);
             }
             break;
         case '0':
@@ -94,15 +94,15 @@ int options_parse(options_t* options, int argc, char** argv) {
 
     for (int index = optind; index < argc; index++) {
         if (strcmp("-", argv[index]) == 0) {
-            str_arr_push(options->files, (char*) -1);
+            str_vec_push(options->files, (char*) -1);
         }
         else {
-            str_arr_push(options->files, argv[index]);
+            str_vec_push(options->files, argv[index]);
         }
     }
 
     if (options->css_queries->len == 0 && options->files->len > 0) {
-        str_arr_push(options->css_queries, str_arr_shift(options->files));
+        str_vec_push(options->css_queries, str_vec_shift(options->files));
     }
 
     if (options->css_queries->len == 0) {

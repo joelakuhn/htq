@@ -6,7 +6,7 @@
 #include "readfile.h"
 #include "css_engine.h"
 
-#include "str_arr.h"
+#include "str_vec.h"
 
 
 int main(int argc, char **argv) {
@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
     }
 
     if (options.files->len == 0) {
-        str_arr_push(options.files, (char*) -1);
+        str_vec_push(options.files, (char*) -1);
     }
 
     for (int file_ind = 0; file_ind < options.files->len; file_ind++) {
@@ -100,8 +100,8 @@ int main(int argc, char **argv) {
 
     css_engine_destroy(engine);
 
-    str_arr_destroy(options.css_queries);
-    str_arr_destroy(options.attributes);
-    str_arr_destroy(options.files);
+    str_vec_destroy(options.css_queries);
+    str_vec_destroy(options.attributes);
+    str_vec_destroy(options.files);
 
 }
