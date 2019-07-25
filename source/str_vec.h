@@ -1,16 +1,16 @@
-#ifndef STR_ARR_H
-#define STR_ARR_H
+#ifndef str_vec_H
+#define str_vec_H
 
 typedef struct {
     const char** strs;
     int len;
     int allocated;
-} str_arr_t;
+} str_vec_t;
 
-void str_arr_destroy(str_arr_t *str_arr);
-const char *str_arr_shift(str_arr_t *str_arr);
-const char *str_arr_pop(str_arr_t *str_arr);
-void str_arr_push(str_arr_t *str_arr,const char *str);
-str_arr_t *str_arr_new();
+void str_vec_destroy(str_vec_t *str_vec);
+const char *str_vec_shift(str_vec_t *str_vec);
+const char *str_vec_pop(str_vec_t *str_vec);
+void str_vec_push(str_vec_t *str_vec,const char *str);
+str_vec_t *str_vec_new();
 
 #endif
