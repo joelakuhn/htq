@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
                         }
                         else if (options.text) {
                             css_engine_print_text(collection->list[i]);
-                            putc('\n', stdout);
+                            putc(options.line_separator, stdout);
                         }
                         else if (options.pretty) {
                             css_engine_print_pretty(collection->list[i], 0);
