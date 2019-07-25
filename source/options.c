@@ -9,12 +9,12 @@
 
 void print_usage() {
     printf("usage: htq [css_query] [options] [file ...]\n");
-    printf("    -c QUERY, --css=QUERY            Specify a css selector\n");
-    printf("    -a ATTR, --attr=ATTR             Extract an attribute value\n");
+    printf("    -c QUERY, --css QUERY            Specify a css selector\n");
+    printf("    -a ATTR, --attr ATTR             Extract an attribute value\n");
     printf("    -p, --pretty                     Pretty print output\n");
     printf("    -t, --text                       Print text content only\n");
     printf("    -0, --print0                     Separate output by NULL\n");
-    printf("    -l, --list-files                 Only print matching file names\n");
+    printf("    -l, --list                       Only print matching file names\n");
     printf("    -h, --prefix                     Print file name prefix\n");
     printf("    -H, --no-prefix                  Don't file name prefix\n");
     printf("    --help                           Print help message\n");
@@ -32,16 +32,15 @@ int options_parse(options_t* options, int argc, char** argv) {
     options->files = str_vec_new();
 
     static struct option long_options[] = {
-        { "nonl", no_argument, 0, 'n' },
-        { "print0", no_argument, 0, '0' },
+        { "css", required_argument, 0, 'c' },
+        { "attr", required_argument, 0, 'a' }
         { "pretty", no_argument, 0, 'p' },
         { "text", no_argument, 0, 't' },
+        { "print0", no_argument, 0, '0' },
         { "list", no_argument, 0, 'l' },
-        { "css", no_argument, 0, 'c' },
-        { "attr", no_argument, 0, 'a' },
         { "prefix", no_argument, 0, 'h' },
         { "no-prefix", no_argument, 0, 'H' },
-        { "help", no_argument, 0, '?' }
+        { "help", no_argument, 0, '?' },
     };
 
     int c = 0;
