@@ -8,7 +8,7 @@
 
 
 void print_usage() {
-    printf("usage: htq [css_query] [options] [file ...]\n");
+    printf("usage: htq [css_query] [option ...] [file ...]\n");
     printf("    -c QUERY, --css QUERY            Specify a css selector\n");
     printf("    -a ATTR, --attr ATTR             Extract an attribute value\n");
     printf("    -p, --pretty                     Pretty print output\n");
@@ -33,14 +33,14 @@ int options_parse(options_t* options, int argc, char** argv) {
 
     static struct option long_options[] = {
         { "css", required_argument, 0, 'c' },
-        { "attr", required_argument, 0, 'a' }
+        { "attr", required_argument, 0, 'a' },
         { "pretty", no_argument, 0, 'p' },
         { "text", no_argument, 0, 't' },
         { "print0", no_argument, 0, '0' },
         { "list", no_argument, 0, 'l' },
         { "prefix", no_argument, 0, 'h' },
         { "no-prefix", no_argument, 0, 'H' },
-        { "help", no_argument, 0, '?' },
+        { "help", no_argument, 0, '?' }
     };
 
     int c = 0;
