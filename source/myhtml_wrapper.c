@@ -5,18 +5,21 @@
 #include <myencoding/encoding.h>
 #include <myhtml/serialization.h>
 
-#include "css_engine.h"
+#include "myhtml_wrapper.h"
 #include "readfile.h"
 
-css_engine_t* css_engine_new() {
+myhtml_wrapper_t* myhtml_wrapper_new() {
     mystatus_t status;
-    css_engine_t* engine = malloc(sizeof(css_engine_t));
+    myhtml_wrapper_t* engine = malloc(sizeof(myhtml_wrapper_t));
 
     engine->myhtml = myhtml_create();
     status = myhtml_init(engine->myhtml, MyHTML_OPTIONS_PARSE_MODE_SINGLE, 1, 0);
 
     engine->tree = myhtml_tree_create();
     myhtml_tree_init(engine->tree, engine->myhtml);
+
+    myhtml_tree_parse_flags_set(engine->tree, MyHTML_TREE_PARSE_FLAGS_SKIP_WHITESPACE_TOKEN);
+    myhtml_tree_parse_flags_set(engine->tree, MyHTML_TREE_PARSE_FLAGS_CLEAN);
 
     engine->mycss = mycss_create();
     status = mycss_init(engine->mycss);
@@ -30,7 +33,7 @@ css_engine_t* css_engine_new() {
     return engine;
 }
 
-void css_engine_parse_html(css_engine_t* engine, struct file_contents* file) {
+void myhtml_wrapper_parse_html(myhtml_wrapper_t* engine, struct file_contents* file) {
 
     mystatus_t status;
 
@@ -45,7 +48,7 @@ void css_engine_parse_html(css_engine_t* engine, struct file_contents* file) {
 
 }
 
-mycss_selectors_list_t* css_engine_parse_selector(css_engine_t* engine, const char* selector) {
+mycss_selectors_list_t* myhtml_wrapper_parse_selector(myhtml_wrapper_t* engine, const char* selector) {
     mystatus_t status;
 
     mycss_selectors_t* selectors = mycss_entry_selectors(engine->entry);
@@ -56,7 +59,7 @@ mycss_selectors_list_t* css_engine_parse_selector(css_engine_t* engine, const ch
     return selectors_list;
 }
 
-myhtml_collection_t* css_engine_query(css_engine_t* engine, mycss_selectors_list_t* selectors_list) {
+myhtml_collection_t* myhtml_wrapper_query(myhtml_wrapper_t* engine, mycss_selectors_list_t* selectors_list) {
 
     myhtml_collection_t* collection = 0;
     modest_finder_by_selectors_list(engine->finder, engine->tree->node_html, selectors_list, &collection);
@@ -64,13 +67,13 @@ myhtml_collection_t* css_engine_query(css_engine_t* engine, mycss_selectors_list
     return collection;
 }
 
-char* css_engine_serialize(myhtml_tree_node_t* node) {
+char* myhtml_wrapper_serialize(myhtml_tree_node_t* node) {
     mycore_string_raw_t str = {0};
     myhtml_serialization(node, &str);
     return str.data;
 }
 
-void css_engine_print_pretty(myhtml_tree_node_t* node, int level) {
+void myhtml_wrapper_print_pretty(myhtml_tree_node_t* node, int level) {
     size_t size;
     mystatus_t status;
     const char* text;
@@ -113,7 +116,7 @@ void css_engine_print_pretty(myhtml_tree_node_t* node, int level) {
         printf("%s\n", str.data);
         child = node->child;
         while (child != 0) {
-            css_engine_print_pretty(child, level + 2);
+            myhtml_wrapper_print_pretty(child, level + 2);
             child = child->next;
         }
         for (int i=0; i<level; i++) printf("  ");
@@ -124,7 +127,7 @@ void css_engine_print_pretty(myhtml_tree_node_t* node, int level) {
     }
 }
 
-void css_engine_print_text(myhtml_tree_node_t* node) {
+void myhtml_wrapper_print_text(myhtml_tree_node_t* node) {
     if (node->tag_id == MyHTML_TAG__TEXT) {
         size_t size;
         const char* text = myhtml_node_text(node, &size);
@@ -133,13 +136,13 @@ void css_engine_print_text(myhtml_tree_node_t* node) {
     else {
         myhtml_tree_node_t* child = node->child;
         while (child) {
-            css_engine_print_text(child);
+            myhtml_wrapper_print_text(child);
             child = child->next;
         }
     }
 }
 
-void css_engine_destroy(css_engine_t* engine) {
+void myhtml_wrapper_destroy(myhtml_wrapper_t* engine) {
     myhtml_destroy(engine->myhtml);
     myhtml_tree_destroy(engine->tree);
     mycss_destroy(engine->mycss, true);

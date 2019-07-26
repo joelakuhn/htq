@@ -4,7 +4,7 @@
 
 #include "options.h"
 #include "readfile.h"
-#include "css_engine.h"
+#include "myhtml_wrapper.h"
 
 #include "str_vec.h"
 
@@ -24,11 +24,11 @@ int main(int argc, char **argv) {
         COLORS_RESET = "";
     }
 
-    css_engine_t* engine = css_engine_new();
+    myhtml_wrapper_t* engine = myhtml_wrapper_new();
 
     mycss_selectors_list_t** selectors = malloc((sizeof(mycss_selectors_list_t*) * options.css_queries->len));
     for (int i=0; i<options.css_queries->len; i++) {
-        selectors[i] = css_engine_parse_selector(engine, options.css_queries->strs[i]);
+        selectors[i] = myhtml_wrapper_parse_selector(engine, options.css_queries->strs[i]);
         if (selectors[i] == 0) {
             return 1;
         }
@@ -42,10 +42,10 @@ int main(int argc, char **argv) {
         struct file_contents* file = read_file(options.files->strs[file_ind]);
         if (file == 0) { return 1; }
 
-        css_engine_parse_html(engine, file);
+        myhtml_wrapper_parse_html(engine, file);
 
         for (int sel_ind = 0; sel_ind < options.css_queries->len; sel_ind++) {
-            myhtml_collection_t* collection = css_engine_query(engine, selectors[sel_ind]);
+            myhtml_collection_t* collection = myhtml_wrapper_query(engine, selectors[sel_ind]);
 
             if (collection) {
                 if (options.list && collection->length > 0) {
@@ -75,15 +75,15 @@ int main(int argc, char **argv) {
                             }
                         }
                         else if (options.text) {
-                            css_engine_print_text(collection->list[i]);
+                            myhtml_wrapper_print_text(collection->list[i]);
                             putc(options.line_separator, stdout);
                         }
                         else if (options.pretty) {
-                            css_engine_print_pretty(collection->list[i], 0);
+                            myhtml_wrapper_print_pretty(collection->list[i], 0);
                             if (options.line_separator == '\0') putc('\0', stdout);
                         }
                         else {
-                            char* str = css_engine_serialize(collection->list[i]);
+                            char* str = myhtml_wrapper_serialize(collection->list[i]);
                             printf("%s%c", str, options.line_separator);
                             free(str);
                         }
@@ -98,7 +98,7 @@ int main(int argc, char **argv) {
 
     free(selectors);
 
-    css_engine_destroy(engine);
+    myhtml_wrapper_destroy(engine);
 
     str_vec_destroy(options.css_queries);
     str_vec_destroy(options.attributes);
