@@ -26,8 +26,10 @@ source/%.o: source/%.c
 Modest/lib/libmodest_static.a:
 	$(MAKE) -C Modest static $(MODEST_FLAGS)
 
-clean:
+shallowclean:
 	rm -rf htq*
 	rm -f source/*.o
+
+clean: shallowclean
 	$(MAKE) -C Modest clean
 
