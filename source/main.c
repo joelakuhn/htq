@@ -8,11 +8,57 @@
 
 #include "str_vec.h"
 
+const char* COLORS_MAGENTA = "\x1b[35m";
+const char* COLORS_RESET = "\x1b[0m";
+
+void print_results(options_t* options, myhtml_collection_t* collection, const char* file) {
+
+    if (options->count) return;
+
+    if (options->list && collection->length > 0) {
+        if (file == (char*) -1) {
+            printf("STDIN\n");
+        }
+        else {
+            printf("%s\n", file);
+        }
+    }
+    else {
+        for (size_t i=0; i<collection->length; i++) {
+            if (options->file_prefix) {
+                if (file == (char*) -1) {
+                    printf("%s%s:%s", COLORS_MAGENTA, "STDIN", COLORS_RESET);
+                }
+                else {
+                    printf("%s%s:%s", COLORS_MAGENTA, file, COLORS_RESET);
+                }
+            }
+            if (options->attributes->len > 0) {
+                for (int attr_ind = 0; attr_ind < options->attributes->len; attr_ind++) {
+                    myhtml_tree_attr_t* attr = myhtml_attribute_by_key(collection->list[i], options->attributes->strs[attr_ind], strlen(options->attributes->strs[attr_ind]));
+                    if (attr) {
+                        printf("%s%c", attr->value.data, options->line_separator);
+                    }
+                }
+            }
+            else if (options->text) {
+                myhtml_wrapper_print_text(collection->list[i]);
+                putc(options->line_separator, stdout);
+            }
+            else if (options->pretty) {
+                myhtml_wrapper_print_pretty(collection->list[i], 0);
+                if (options->line_separator == '\0') putc('\0', stdout);
+            }
+            else {
+                char* str = myhtml_wrapper_serialize(collection->list[i]);
+                printf("%s%c", str, options->line_separator);
+                free(str);
+            }
+        }
+    }
+}
 
 int main(int argc, char **argv) {
-
-    const char* COLORS_MAGENTA = "\x1b[35m";
-    const char* COLORS_RESET = "\x1b[0m";
 
     options_t options;
     if (!options_parse(&options, argc, argv)) {
@@ -50,53 +96,17 @@ int main(int argc, char **argv) {
             myhtml_collection_t* collection = myhtml_wrapper_query(engine, selectors[sel_ind]);
 
             if (collection) {
-                if (options.list && collection->length > 0) {
-                    if (options.files->strs[file_ind] == (char*) -1) {
-                        printf("STDIN\n");
-                    }
-                    else {
-                        printf("%s\n", options.files->strs[file_ind]);
-                    }
-                }
-                else {
-                    for (size_t i=0; i<collection->length; i++) {
-                        total_matches++;
-                        if (options.file_prefix) {
-                            if (options.files->strs[file_ind] == (char*) -1) {
-                                printf("%s%s:%s", COLORS_MAGENTA, "STDIN", COLORS_RESET);
-                            }
-                            else {
-                                printf("%s%s:%s", COLORS_MAGENTA, options.files->strs[file_ind], COLORS_RESET);
-                            }
-                        }
-                        if (options.attributes->len > 0) {
-                            for (int attr_ind = 0; attr_ind < options.attributes->len; attr_ind++) {
-                                myhtml_tree_attr_t* attr = myhtml_attribute_by_key(collection->list[i], options.attributes->strs[attr_ind], strlen(options.attributes->strs[attr_ind]));
-                                if (attr) {
-                                    printf("%s%c", attr->value.data, options.line_separator);
-                                }
-                            }
-                        }
-                        else if (options.text) {
-                            myhtml_wrapper_print_text(collection->list[i]);
-                            putc(options.line_separator, stdout);
-                        }
-                        else if (options.pretty) {
-                            myhtml_wrapper_print_pretty(collection->list[i], 0);
-                            if (options.line_separator == '\0') putc('\0', stdout);
-                        }
-                        else {
-                            char* str = myhtml_wrapper_serialize(collection->list[i]);
-                            printf("%s%c", str, options.line_separator);
-                            free(str);
-                        }
-                    }
-                }
+                print_results(&options, collection, options.files->strs[file_ind]);
+                total_matches += collection->length;
                 myhtml_collection_destroy(collection);
             }
         }
 
         free_file(file);
+    }
+
+    if (options.count) {
+        printf("%i", total_matches);
     }
 
     free(selectors);
