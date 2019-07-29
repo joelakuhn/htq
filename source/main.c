@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
 
     options_t options;
     if (!options_parse(&options, argc, argv)) {
-        return 0;
+        return 1;
     }
 
     if (!isatty(STDOUT_FILENO)) {
@@ -38,6 +38,8 @@ int main(int argc, char **argv) {
         str_vec_push(options.files, (char*) -1);
     }
 
+    int total_matches = 0;
+
     for (int file_ind = 0; file_ind < options.files->len; file_ind++) {
         struct file_contents* file = read_file(options.files->strs[file_ind]);
         if (file == 0) { return 1; }
@@ -58,6 +60,7 @@ int main(int argc, char **argv) {
                 }
                 else {
                     for (size_t i=0; i<collection->length; i++) {
+                        total_matches++;
                         if (options.file_prefix) {
                             if (options.files->strs[file_ind] == (char*) -1) {
                                 printf("%s%s:%s", COLORS_MAGENTA, "STDIN", COLORS_RESET);
@@ -103,5 +106,7 @@ int main(int argc, char **argv) {
     str_vec_destroy(options.css_queries);
     str_vec_destroy(options.attributes);
     str_vec_destroy(options.files);
+
+    return total_matches > 0 ? 0 : 1;
 
 }
