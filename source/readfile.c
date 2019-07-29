@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "readfile.h"
 
@@ -97,7 +98,7 @@ struct file_contents* read_regular_file(const char* filename) {
 
 struct file_contents* read_file(const char* filename)
 {
-    if (filename == (const char*)-1) {
+    if (strcmp(filename, "(standard input)") == 0) {
         return read_stream(stdin);
     }
     else {

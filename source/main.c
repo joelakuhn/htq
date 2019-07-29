@@ -8,32 +8,35 @@
 
 #include "str_vec.h"
 
+
+
 const char* COLORS_MAGENTA = "\x1b[35m";
 const char* COLORS_RESET = "\x1b[0m";
 
 #define printf_highlighted(format, args...) printf("%s" format "%s", COLORS_MAGENTA, args, COLORS_RESET)
+void printf_highlighted_check_tty() {
+    if (!isatty(STDOUT_FILENO)) {
+        COLORS_MAGENTA = "";
+        COLORS_RESET = "";
+    }
+}
+
+
 
 void print_results(options_t* options, myhtml_collection_t* collection, const char* file) {
 
-    if (options->count) return;
-
-    if (options->list && collection->length > 0) {
-        if (file == (char*) -1) {
-            printf("STDIN\n");
+    if (options->count) {
+        if (options->file_prefix == 1) {
+            printf_highlighted("%s: %zu\n", file, collection->length);
         }
-        else {
-            printf("%s\n", file);
-        }
+    }
+    else if (options->list && collection->length > 0) {
+        printf("%s\n", file);
     }
     else {
         for (size_t i=0; i<collection->length; i++) {
             if (options->file_prefix) {
-                if (file == (char*) -1) {
-                    printf_highlighted("%s:", "STDIN");
-                }
-                else {
-                    printf_highlighted("%s:", file);
-                }
+                printf_highlighted("%s:", file);
             }
             if (options->attributes->len > 0) {
                 for (int attr_ind = 0; attr_ind < options->attributes->len; attr_ind++) {
@@ -60,6 +63,8 @@ void print_results(options_t* options, myhtml_collection_t* collection, const ch
     }
 }
 
+
+
 int main(int argc, char **argv) {
 
     options_t options;
@@ -67,10 +72,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    if (!isatty(STDOUT_FILENO)) {
-        COLORS_MAGENTA = "";
-        COLORS_RESET = "";
-    }
+    printf_highlighted_check_tty();
 
     myhtml_wrapper_t* engine = myhtml_wrapper_new();
 
@@ -83,7 +85,7 @@ int main(int argc, char **argv) {
     }
 
     if (options.files->len == 0) {
-        str_vec_push(options.files, (char*) -1);
+        str_vec_push(options.files, "(standard input)");
     }
 
     int total_matches = 0;
@@ -107,7 +109,7 @@ int main(int argc, char **argv) {
         free_file(file);
     }
 
-    if (options.count) {
+    if (options.count && !options.file_prefix) {
         printf("%i", total_matches);
     }
 

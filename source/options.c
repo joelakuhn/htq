@@ -99,7 +99,7 @@ int options_parse(options_t* options, int argc, char** argv) {
 
     for (int index = optind; index < argc; index++) {
         if (strcmp("-", argv[index]) == 0) {
-            str_vec_push(options->files, (char*) -1);
+            str_vec_push(options->files, "(standard input)");
         }
         else {
             str_vec_push(options->files, argv[index]);
