@@ -17,6 +17,7 @@ void print_usage() {
     printf("    -l, --list                       Only print matching file names\n");
     printf("    -h, --prefix                     Print file name prefix\n");
     printf("    -H, --no-prefix                  Don't file name prefix\n");
+    printf("    -C, --count                      Print the number of matches");
     printf("    --help                           Print help message\n");
 }
 
@@ -26,6 +27,7 @@ int options_parse(options_t* options, int argc, char** argv) {
     options->list = 0;
     options->text = 0;
     options->file_prefix = -1;
+    options->count = 0;
     options->line_separator = '\n';
     options->css_queries = str_vec_new();
     options->attributes = str_vec_new();
@@ -40,7 +42,8 @@ int options_parse(options_t* options, int argc, char** argv) {
         { "list", no_argument, 0, 'l' },
         { "prefix", no_argument, 0, 'h' },
         { "no-prefix", no_argument, 0, 'H' },
-        { "help", no_argument, 0, '?' }
+        { "count", no_argument, 0, 'C' },
+        { "help", no_argument, 0, '?' },
     };
 
     int c = 0;
@@ -48,7 +51,7 @@ int options_parse(options_t* options, int argc, char** argv) {
 
     while (1) {
 
-        c = getopt_long(argc, argv, "n0ptlhH?c:a:", long_options, &option_index);
+        c = getopt_long(argc, argv, "n0ptlhHC?c:a:", long_options, &option_index);
 
         if (c == -1) break;
 
@@ -84,6 +87,9 @@ int options_parse(options_t* options, int argc, char** argv) {
             break;
         case 'H':
             options->file_prefix = 0;
+            break;
+        case 'C':
+            options->count = 1;
             break;
         case '?':
             print_usage();

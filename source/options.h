@@ -10,6 +10,7 @@ typedef struct {
     int text;
     int list;
     int file_prefix;
+    int count;
     str_vec_t* css_queries;
     str_vec_t* attributes;
     str_vec_t* files;
