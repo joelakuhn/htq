@@ -11,6 +11,8 @@
 const char* COLORS_MAGENTA = "\x1b[35m";
 const char* COLORS_RESET = "\x1b[0m";
 
+#define printf_highlighted(format, args...) printf("%s" format "%s", COLORS_MAGENTA, args, COLORS_RESET)
+
 void print_results(options_t* options, myhtml_collection_t* collection, const char* file) {
 
     if (options->count) return;
@@ -27,10 +29,10 @@ void print_results(options_t* options, myhtml_collection_t* collection, const ch
         for (size_t i=0; i<collection->length; i++) {
             if (options->file_prefix) {
                 if (file == (char*) -1) {
-                    printf("%s%s:%s", COLORS_MAGENTA, "STDIN", COLORS_RESET);
+                    printf_highlighted("%s:", "STDIN");
                 }
                 else {
-                    printf("%s%s:%s", COLORS_MAGENTA, file, COLORS_RESET);
+                    printf_highlighted("%s:", file);
                 }
             }
             if (options->attributes->len > 0) {
