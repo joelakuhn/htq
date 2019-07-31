@@ -33,3 +33,7 @@ shallowclean:
 clean: shallowclean
 	$(MAKE) -C Modest clean
 
+test: htq .BOGUS
+	cd test && awk -f test.awk
+
+.BOGUS:
