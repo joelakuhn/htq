@@ -31,7 +31,7 @@ void print_results(options_t* options, myhtml_collection_t* collection, const ch
         }
     }
     else if (options->list && collection->length > 0) {
-        printf("%s", file);
+        printf("%s%c", file, options->line_separator);
     }
     else {
         for (size_t i=0; i<collection->length; i++) {
