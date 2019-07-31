@@ -27,11 +27,11 @@ void print_results(options_t* options, myhtml_collection_t* collection, const ch
 
     if (options->count) {
         if (options->file_prefix == 1) {
-            printf_highlighted("%s: %zu\n", file, collection->length);
+            printf_highlighted("%s: %zu%c", file, collection->length, options->line_separator);
         }
     }
     else if (options->list && collection->length > 0) {
-        printf("%s\n", file);
+        printf("%s", file);
     }
     else {
         for (size_t i=0; i<collection->length; i++) {
