@@ -51,7 +51,7 @@ void print_results(options_t* options, myhtml_collection_t* collection, const ch
                 putc(options->line_separator, stdout);
             }
             else if (options->pretty) {
-                myhtml_wrapper_print_pretty(collection->list[i], 0);
+                myhtml_wrapper_print_pretty(collection->list[i], 0, options->whitespace);
                 if (options->line_separator == '\0') putc('\0', stdout);
             }
             else {
@@ -120,6 +120,7 @@ int main(int argc, char **argv) {
     str_vec_destroy(options.css_queries);
     str_vec_destroy(options.attributes);
     str_vec_destroy(options.files);
+    free(options.whitespace);
 
     return total_matches > 0 ? 0 : 1;
 

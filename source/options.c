@@ -11,13 +11,14 @@ void print_usage() {
     printf("usage: htq [css_query] [option ...] [file ...]\n");
     printf("    -c QUERY, --css QUERY            Specify a css selector\n");
     printf("    -a ATTR, --attr ATTR             Extract an attribute value\n");
+    printf("    -i SPACES, --indent SPACES       Number of spaces for indent\n");
     printf("    -p, --pretty                     Pretty print output\n");
     printf("    -t, --text                       Print text content only\n");
     printf("    -0, --print0                     Separate output by NULL\n");
     printf("    -l, --list                       Only print matching file names\n");
     printf("    -h, --prefix                     Print file name prefix\n");
     printf("    -H, --no-prefix                  Don't file name prefix\n");
-    printf("    -C, --count                      Print the number of matches");
+    printf("    -C, --count                      Print the number of matches\n");
     printf("    --help                           Print help message\n");
 }
 
@@ -32,10 +33,13 @@ int options_parse(options_t* options, int argc, char** argv) {
     options->css_queries = str_vec_new();
     options->attributes = str_vec_new();
     options->files = str_vec_new();
+    options->whitespace = 0;
+    options->indent_level = 2;
 
     static struct option long_options[] = {
         { "css", required_argument, 0, 'c' },
         { "attr", required_argument, 0, 'a' },
+        { "indent", required_argument, 0, 'i' },
         { "pretty", no_argument, 0, 'p' },
         { "text", no_argument, 0, 't' },
         { "print0", no_argument, 0, '0' },
@@ -51,7 +55,7 @@ int options_parse(options_t* options, int argc, char** argv) {
 
     while (1) {
 
-        c = getopt_long(argc, argv, "n0ptlhHC?c:a:", long_options, &option_index);
+        c = getopt_long(argc, argv, "n0ptlhHC?i:c:a:", long_options, &option_index);
 
         if (c == -1) break;
 
@@ -91,6 +95,17 @@ int options_parse(options_t* options, int argc, char** argv) {
         case 'C':
             options->count = 1;
             break;
+        case 'i':
+            if (optarg) {
+                int opt_len = strlen(optarg);
+                int level = opt_len == 1 ? optarg[0] - '0' : 0;
+                if (opt_len != 1 || level < 2 || level > 8) {
+                    printf("enter an integer between 2-8");
+                    return 0;
+                }
+                options->indent_level = level;
+            }
+            break;
         case '?':
             print_usage();
             return 0;
@@ -118,8 +133,13 @@ int options_parse(options_t* options, int argc, char** argv) {
 
     if (options->file_prefix == -1) {
         options->file_prefix = options->files->len > 1;
-
     }
+
+    options->whitespace = malloc(sizeof(char) * options->indent_level + 1);
+    for (int i=0; i<options->indent_level; i++) {
+        options->whitespace[i] = ' ';
+    }
+    options->whitespace[options->indent_level] = '\0';
 
     return 1;
 

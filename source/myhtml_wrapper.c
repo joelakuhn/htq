@@ -73,7 +73,7 @@ char* myhtml_wrapper_serialize(myhtml_tree_node_t* node) {
     return str.data;
 }
 
-void myhtml_wrapper_print_pretty(myhtml_tree_node_t* node, int level) {
+void myhtml_wrapper_print_pretty(myhtml_tree_node_t* node, int level, char* whitespace) {
     size_t size;
     mystatus_t status;
     const char* text;
@@ -97,12 +97,12 @@ void myhtml_wrapper_print_pretty(myhtml_tree_node_t* node, int level) {
         *++lastchar = '\0';
 
         if (strlen(firstchar) > 0) {
-            for (int i=0; i<level; i++) printf("  ");
+            for (int i=0; i<level; i++) printf("%s", whitespace);
             printf("%s\n", firstchar);
         }
         break;
     case (MyHTML_TAG__COMMENT):
-        for (int i=0; i<level; i++) printf("  ");
+        for (int i=0; i<level; i++) printf("%s", whitespace);
         printf("%s", "<!--");
         text = myhtml_node_text(node, &size);
         printf("%s", text);
@@ -111,15 +111,15 @@ void myhtml_wrapper_print_pretty(myhtml_tree_node_t* node, int level) {
     case (MyHTML_TAG__UNDEF):
         break;
     default:
-        for (int i=0; i<level; i++) printf("  ");
+        for (int i=0; i<level; i++) printf("%s", whitespace);
         status = myhtml_serialization_node(node, &str);
         printf("%s\n", str.data);
         child = node->child;
         while (child != 0) {
-            myhtml_wrapper_print_pretty(child, level + 2);
+            myhtml_wrapper_print_pretty(child, level + 1, whitespace);
             child = child->next;
         }
-        for (int i=0; i<level; i++) printf("  ");
+        for (int i=0; i<level; i++) printf("%s", whitespace);
         text = myhtml_tag_name_by_id(node->tree, node->tag_id, &size);
         printf("<%s>\n", text);
         free(str.data);
