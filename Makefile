@@ -36,4 +36,7 @@ clean: shallowclean
 test: htq .BOGUS
 	cd test && awk -f test.awk
 
+install: htq
+	cp htq /usr/local/bin/
+
 .BOGUS:
