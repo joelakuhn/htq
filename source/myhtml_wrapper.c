@@ -121,7 +121,7 @@ void myhtml_wrapper_print_pretty(myhtml_tree_node_t* node, int level, char* whit
         }
         for (int i=0; i<level; i++) printf("%s", whitespace);
         text = myhtml_tag_name_by_id(node->tree, node->tag_id, &size);
-        printf("<%s>\n", text);
+        printf("</%s>\n", text);
         free(str.data);
         break;
     }
