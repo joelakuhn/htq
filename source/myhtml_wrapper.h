@@ -17,8 +17,8 @@ typedef struct {
 } myhtml_wrapper_t;
 
 void myhtml_wrapper_destroy(myhtml_wrapper_t *engine);
-void myhtml_wrapper_print_text(myhtml_tree_node_t *node);
-void myhtml_wrapper_print_pretty(myhtml_tree_node_t *node, int level, char* whitespace);
+void myhtml_wrapper_print_text(FILE *output, myhtml_tree_node_t *node);
+void myhtml_wrapper_print_pretty(FILE *output, myhtml_tree_node_t *node, int level, char* whitespace);
 char *myhtml_wrapper_serialize(myhtml_tree_node_t *node);
 myhtml_collection_t *myhtml_wrapper_query(myhtml_wrapper_t *engine,mycss_selectors_list_t *selectors_list);
 mycss_selectors_list_t *myhtml_wrapper_parse_selector(myhtml_wrapper_t *engine,const char *selector);

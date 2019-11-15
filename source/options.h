@@ -12,6 +12,7 @@ typedef struct {
     int file_prefix;
     int count;
     int indent_level;
+    FILE* output_file;
     char* whitespace;
     str_vec_t* css_queries;
     str_vec_t* attributes;

@@ -73,7 +73,7 @@ char* myhtml_wrapper_serialize(myhtml_tree_node_t* node) {
     return str.data;
 }
 
-void myhtml_wrapper_print_pretty(myhtml_tree_node_t* node, int level, char* whitespace) {
+void myhtml_wrapper_print_pretty(FILE* output, myhtml_tree_node_t* node, int level, char* whitespace) {
     size_t size;
     mystatus_t status;
     const char* text;
@@ -97,46 +97,46 @@ void myhtml_wrapper_print_pretty(myhtml_tree_node_t* node, int level, char* whit
         *++lastchar = '\0';
 
         if (strlen(firstchar) > 0) {
-            for (int i=0; i<level; i++) printf("%s", whitespace);
-            printf("%s\n", firstchar);
+            for (int i=0; i<level; i++) fprintf(output, "%s", whitespace);
+            fprintf(output, "%s\n", firstchar);
         }
         break;
     case (MyHTML_TAG__COMMENT):
-        for (int i=0; i<level; i++) printf("%s", whitespace);
-        printf("%s", "<!--");
+        for (int i=0; i<level; i++) fprintf(output, "%s", whitespace);
+        fprintf(output, "%s", "<!--");
         text = myhtml_node_text(node, &size);
-        printf("%s", text);
-        printf("%s\n", "-->");
+        fprintf(output, "%s", text);
+        fprintf(output, "%s\n", "-->");
         break;
     case (MyHTML_TAG__UNDEF):
         break;
     default:
-        for (int i=0; i<level; i++) printf("%s", whitespace);
+        for (int i=0; i<level; i++) fprintf(output, "%s", whitespace);
         status = myhtml_serialization_node(node, &str);
-        printf("%s\n", str.data);
+        fprintf(output, "%s\n", str.data);
         child = node->child;
         while (child != 0) {
-            myhtml_wrapper_print_pretty(child, level + 1, whitespace);
+            myhtml_wrapper_print_pretty(output, child, level + 1, whitespace);
             child = child->next;
         }
-        for (int i=0; i<level; i++) printf("%s", whitespace);
+        for (int i=0; i<level; i++) fprintf(output, "%s", whitespace);
         text = myhtml_tag_name_by_id(node->tree, node->tag_id, &size);
-        printf("</%s>\n", text);
+        fprintf(output, "</%s>\n", text);
         free(str.data);
         break;
     }
 }
 
-void myhtml_wrapper_print_text(myhtml_tree_node_t* node) {
+void myhtml_wrapper_print_text(FILE* output, myhtml_tree_node_t* node) {
     if (node->tag_id == MyHTML_TAG__TEXT) {
         size_t size;
         const char* text = myhtml_node_text(node, &size);
-        printf("%s", text);
+        fprintf(output, "%s", text);
     }
     else {
         myhtml_tree_node_t* child = node->child;
         while (child) {
-            myhtml_wrapper_print_text(child);
+            myhtml_wrapper_print_text(output, child);
             child = child->next;
         }
     }
