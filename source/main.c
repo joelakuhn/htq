@@ -24,6 +24,7 @@ void fprintf_highlighted_check_tty(options_t* options) {
 
 
 void print_results(options_t* options, myhtml_collection_t* collection, const char* file) {
+    if (options->quiet) return;
 
     if (options->count) {
         if (options->file_prefix == 1) {
@@ -109,7 +110,7 @@ int main(int argc, char **argv) {
         free_file(file);
     }
 
-    if (options.count && !options.file_prefix) {
+    if (!options.quiet && options.count && !options.file_prefix) {
         fprintf(options.output_file, "%i", total_matches);
     }
 

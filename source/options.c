@@ -36,6 +36,7 @@ int options_parse(options_t* options, int argc, char** argv) {
     options->files = str_vec_new();
     options->whitespace = 0;
     options->indent_level = 2;
+    options->quiet = 0;
     options->output_file = stdout;
 
     static struct option long_options[] = {
@@ -43,6 +44,7 @@ int options_parse(options_t* options, int argc, char** argv) {
         { "attr", required_argument, 0, 'a' },
         { "indent", required_argument, 0, 'i' },
         { "output", required_argument, 0, 'o' },
+        { "quiet", no_argument, 0, 'q' },
         { "pretty", no_argument, 0, 'p' },
         { "text", no_argument, 0, 't' },
         { "print0", no_argument, 0, '0' },
@@ -58,7 +60,7 @@ int options_parse(options_t* options, int argc, char** argv) {
 
     while (1) {
 
-        c = getopt_long(argc, argv, "n0ptlhHC?i:c:a:o:", long_options, &option_index);
+        c = getopt_long(argc, argv, "n0ptlhHC?qi:c:a:o:", long_options, &option_index);
 
         if (c == -1) break;
 
@@ -97,6 +99,9 @@ int options_parse(options_t* options, int argc, char** argv) {
             break;
         case 'C':
             options->count = 1;
+            break;
+        case 'q':
+            options->quiet = 1;
             break;
         case 'i':
             if (optarg) {
