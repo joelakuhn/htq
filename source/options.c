@@ -20,6 +20,7 @@ void print_usage() {
     printf("    -H, --no-prefix                  Don't file name prefix\n");
     printf("    -C, --count                      Print the number of matches\n");
     printf("    -o, --output                     Print results to an output file\n");
+    printf("    -q, --quiet                      Suppress output\n");
     printf("    --help                           Print help message\n");
 }
 
